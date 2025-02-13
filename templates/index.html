@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI Chatbot </title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Body Styling */
+        body {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Chat Container */
+        #chat-container {
+            width: 90%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(to right, #4facfe, #00c6ff);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 0.9em;
+            font-weight: 300;
+            margin-top: 5px;
+        }
+
+        /* Messages Area */
+        #messages {
+            flex: 1; 
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 400px;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+
+        .message {
+            max-width: 75%;
+            padding: 12px 15px;
+            border-radius: 20px;
+            font-size: 1em;
+            line-height: 1.4;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-out;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: linear-gradient(to right, #ffedcc, #ffd180);
+            color: #333;
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .bot-message {
+            background: linear-gradient(to right, #e6f7ff, #cce5ff);
+            color: #007bff;
+            align-self: flex-start;
+        }
+
+        /* Typing Animation */
+        .typing {
+            color: #007bff;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            padding: 15px;
+            background: #ffffff;
+            border-top: 1px solid #ddd;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        #query-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #query-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            outline: none;
+        }
+
+        #send-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background: linear-gradient(to right, #007bff, #0056b3);
+            color: #ffffff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        #send-button:hover {
+            background: linear-gradient(to right, #0056b3, #004085);
+            transform: scale(1.05);
+        }
+
+        /* Scrollbar Styling */
+        #messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #messages::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        #messages::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Chatbot Container -->
+    <div id="chat-container">
+        <!-- Header -->
+        <header>
+            Medicine AI Chatbot
+            <p>Your virtual assistant 🤖</p>
+        </header>
+
+        <!-- Messages Area -->
+        <div id="messages"></div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <input type="text" id="query-input" placeholder="Type a message..." autocomplete="off">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const sendButton = document.getElementById('send-button');
+        const queryInput = document.getElementById('query-input');
+        const messages = document.getElementById('messages');
+
+        function addMessage(content, isBot) {
+            const message = document.createElement('div');
+            message.className = 'message ' + (isBot ? 'bot-message' : 'user-message');
+            message.textContent = content;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const typing = document.createElement('div');
+            typing.className = 'message bot-message typing';
+            typing.textContent = 'Typing...';
+            typing.id = 'typing-indicator';
+            messages.appendChild(typing);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) messages.removeChild(typing);
+        }
+
+        window.onload = () => {
+            addMessage("Hello! How can I assist you today?", true);
+        };
+
+        sendButton.addEventListener('click', async () => {
+            const query = queryInput.value.trim();
+            if (!query) return;
+
+            addMessage(query, false);
+            queryInput.value = '';
+
+            addTypingIndicator();
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+                addMessage(data.response, true);
+            } catch (error) {
+                removeTypingIndicator();
+                console.error("Error:", error);
+                addMessage("Sorry, something went wrong. Please try again later.", true);
+            }
+        });
+
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendButton.click();
+        });
+    </script>
+</body>
+</html>
